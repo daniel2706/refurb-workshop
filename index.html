@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Refurbishment Workshop</title>
+<style>
+  :root{
+    --bg:#f3f4f6; --card:#ffffff; --ink:#111827; --ink2:#374151; --muted:#6b7280; --line:#e5e7eb; --field:#d1d5db;
+    --head:#111827; --brand:#b91c1c; --brand-2:#991b1b; --brand-soft:#fef2f2;
+    --ok:#047857; --ok-soft:#ecfdf5; --warn:#b45309; --warn-soft:#fffbeb;
+    --info:#1d4ed8; --info-soft:#eff6ff; --err:#b91c1c; --err-soft:#fef2f2;
+    --r:14px; --r-sm:10px;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+  button{font:inherit;color:inherit}
+  svg{width:18px;height:18px;flex:none}
+
+  /* Header + tab */
+  header.top{background:var(--head);color:#fff;position:sticky;top:0;z-index:30;padding:14px 16px 0}
+  .top-in{max-width:720px;margin:0 auto}
+  .top h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  .top .sub{font-size:12px;color:#9ca3af;margin-top:2px}
+  .tabs{display:flex;margin-top:10px}
+  .tab{flex:1;background:none;border:0;color:#9ca3af;font-weight:600;padding:10px 6px 12px;border-bottom:3px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .tab.on{color:#fff;border-bottom-color:var(--brand)}
+  .tab .cnt{min-width:20px;padding:0 6px;border-radius:10px;background:var(--brand);color:#fff;font-size:11px;line-height:19px;text-align:center}
+  .tab .cnt:empty{display:none}
+
+  main{max-width:720px;margin:0 auto;padding:16px 16px 40px}
+  .view[hidden]{display:none}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+  .card h2{font-size:14px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card .lead{font-size:13px;color:var(--muted);margin:0 0 6px}
+  .step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700}
+
+  label.f{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
+  .req{color:var(--brand)}
+  .opt{color:var(--muted);font-weight:500}
+  input[type=text],select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--field);border-radius:var(--r-sm);background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none}
+  select{background-image:linear-gradient(45deg,transparent 50%,#6b7280 50%),linear-gradient(135deg,#6b7280 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+  input:focus,select:focus,textarea:focus{outline:2px solid #fecaca;border-color:var(--brand)}
+  input:disabled,select:disabled,textarea:disabled{background:#f9fafb;color:var(--ink2)}
+  input.up{text-transform:uppercase}
+  textarea{min-height:64px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  @media (max-width:520px){.row2{grid-template-columns:1fr}}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;font-weight:400}
+
+  /* Tombol */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--field);background:#fff;border-radius:var(--r-sm);padding:11px 14px;font-weight:600;cursor:pointer;min-height:44px}
+  .btn:hover{background:#f9fafb}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.primary:hover{background:var(--brand-2)}
+  .btn.primary.dim{background:#e5a3a3;border-color:#e5a3a3}
+  .btn.dark{background:var(--head);border-color:var(--head);color:#fff}
+  .btn.block{width:100%}
+  .btn.sm{min-height:40px;padding:8px 12px;font-size:14px}
+  .btn.icon{padding:8px;min-height:40px;min-width:40px}
+
+  /* Picker foto */
+  .picker{border:1px dashed #cbd5e1;border-radius:var(--r-sm);padding:12px;margin-top:14px;background:#fcfcfd}
+  .pk-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .pk-hd b{font-size:13.5px}
+  .pk-n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:10px 0}
+  .th{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#e5e7eb;cursor:zoom-in}
+  .th img{width:100%;height:100%;object-fit:cover;display:block}
+  .th.new::after{content:"baru";position:absolute;left:4px;top:4px;background:var(--info);color:#fff;font-size:10px;padding:1px 5px;border-radius:4px}
+  .th-x{position:absolute;right:4px;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(17,24,39,.75);color:#fff;font-size:18px;line-height:1;cursor:pointer}
+  .th .miss{display:flex;height:100%;align-items:center;justify-content:center;font-size:11px;color:var(--muted);text-align:center}
+  .empty-ph{grid-column:1/-1;font-size:12.5px;color:var(--muted);padding:14px 0;text-align:center}
+  .pk-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+  /* Fitur susulan (greyed out) */
+  .wi-opt{margin-top:14px;border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:#f9fafb;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;cursor:pointer}
+  .wi-opt b{font-size:13.5px}
+  .wi-opt input{position:absolute;opacity:0;width:1px;height:1px}
+  .wi-opt:has(input:checked){border-color:#a7f3d0;background:var(--ok-soft)}
+  .wi-opt.off{opacity:.55;filter:grayscale(1);cursor:not-allowed}
+  .wi-opt input:checked ~ .switch{background:var(--ok)}
+  .wi-opt input:checked ~ .switch::after{transform:translateX(18px)}
+  .wi-opt input:focus-visible ~ .switch{outline:2px solid #93c5fd;outline-offset:2px}
+  .wi-box{border-radius:var(--r-sm);padding:10px 12px;font-size:13px;margin-top:4px}
+  .wi-SENT{background:var(--ok-soft);color:#065f46}
+  .wi-FAILED{background:var(--err-soft);color:#7f1d1d}
+  .wi-NONE{background:#f3f4f6;color:var(--ink2)}
+  .docno{margin-top:10px;padding:10px 12px;border:1px dashed #cbd5e1;border-radius:var(--r-sm);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .docno b{font-size:15px;letter-spacing:.2px}
+  .sp-box{margin-top:10px;font-size:13px}
+  .sp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sp-cmt{white-space:pre-wrap;background:#f9fafb;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;color:var(--ink2)}
+  .linkbtn{background:none;border:0;color:var(--info);font-weight:600;cursor:pointer;padding:4px 0;font-size:13px}
+
+  .switch{flex:none;width:42px;height:24px;border-radius:12px;background:#d1d5db;position:relative;margin-top:2px}
+  .switch::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s}
+
+  /* Dashboard */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start}
+  .stat .l{line-height:1.25;margin-top:2px}
+  .stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+  .stat .l{font-size:11.5px;color:var(--muted)}
+  .stat.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  @media (max-width:420px){.stat .v{font-size:19px}.stat{padding:8px}}
+  .toolbar{display:flex;gap:8px;margin-bottom:12px}
+  .toolbar input{flex:1}
+  .banner{border-radius:var(--r-sm);padding:10px 12px;font-size:13px;margin-bottom:12px;background:var(--warn-soft);color:#78350f;border:1px solid #fde68a}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer}
+  .item:hover{border-color:#cbd5e1}
+  .item.hl{animation:hl 2.4s ease-out}
+  @keyframes hl{0%{box-shadow:0 0 0 3px #fca5a5}100%{box-shadow:0 0 0 0 transparent}}
+  .it-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .asset{font-weight:700;font-size:16px;letter-spacing:.3px}
+  .it-meta{font-size:13px;color:var(--ink2);margin-top:2px}
+  .it-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+  .it-date{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .chip{font-size:11.5px;border-radius:6px;padding:2px 7px;background:#f3f4f6;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .chip.ok{background:var(--ok-soft);color:var(--ok)}
+  .chip.miss{background:var(--warn-soft);color:var(--warn)}
+  .badge{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .s-OPEN{background:var(--warn-soft);color:var(--warn)}
+  .s-READY,.s-SENDING{background:var(--info-soft);color:var(--info)}
+  .s-FAILED{background:var(--err-soft);color:var(--err)}
+  .s-SENT{background:var(--ok-soft);color:var(--ok)}
+  .empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
+
+  /* Detail (tahap 2 & 3) */
+  .sheet{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
+  .sheet[hidden]{display:none}
+  .sh-hd{background:var(--head);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px}
+  .sh-hd .btn.icon{background:transparent;border-color:#374151;color:#fff}
+  .sh-hd .t{flex:1;min-width:0}
+  .sh-hd .t b{display:block;font-size:16px}
+  .sh-hd .t span{font-size:12px;color:#9ca3af}
+  .sh-bd{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+  .sh-bd-in{max-width:720px;margin:0 auto;padding:16px}
+  .sh-ft{background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+  .sh-ft-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+  .stp{border-radius:var(--r-sm);padding:8px 10px;background:#fff;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .stp b{display:block;font-size:12.5px;color:var(--ink)}
+  .stp.done{border-color:#a7f3d0;background:var(--ok-soft)}
+  .stp.done b{color:var(--ok)}
+  .stp.cur{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+  .check{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .check li{font-size:13px;display:flex;align-items:center;gap:6px;color:var(--warn)}
+  .check li.ok{color:var(--ok)}
+  .links{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .links a{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);text-decoration:none;color:var(--ink);font-weight:600;background:#fff}
+  .fld-err input{border-color:var(--err);background:var(--err-soft)}
+  .err-msg{color:var(--err);font-size:12.5px;margin-top:5px;font-weight:600}
+  .err-msg[hidden]{display:none}
+  .banner.must{background:var(--err-soft);color:#7f1d1d;border-color:#fecaca;display:flex;gap:8px;align-items:flex-start}
+  .banner[hidden]{display:none}
+  .resp{font-size:11.5px;color:var(--muted);margin-top:8px;word-break:break-all}
+
+  /* Overlay umum */
+  .ov{position:fixed;inset:0;z-index:80;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+  .ov[hidden]{display:none}
+  .busy-box{background:#fff;border-radius:var(--r);padding:20px 22px;display:flex;align-items:center;gap:14px;max-width:320px;font-weight:600}
+  .spin{width:26px;height:26px;border:3px solid #e5e7eb;border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite;flex:none}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .dlg{background:#fff;border-radius:var(--r);padding:18px;max-width:420px;width:100%}
+  .dlg h3{margin:0 0 8px;font-size:16px}
+  .dlg .msg{font-size:14px;color:var(--ink2);white-space:pre-line}
+  .dlg .act{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  .viewer{background:rgba(0,0,0,.92);padding:0}
+  .viewer img{max-width:100%;max-height:100%;object-fit:contain}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;background:var(--head);color:#fff;padding:11px 16px;border-radius:var(--r-sm);font-size:14px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .toast{pointer-events:none}
+  .toast.err{background:var(--err)}
+  .toast.ok{background:var(--ok)}
+  .toast[hidden]{display:none}
+  /* Scan barcode */
+  .ig{display:flex;gap:8px}
+  .ig input{flex:1;min-width:0}
+  .btn.scan{min-width:48px;padding:8px 12px}
+  .scanner{background:#000;align-items:stretch;padding:0;overflow:auto}
+  .sc-box{width:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;padding:12px 16px calc(16px + env(safe-area-inset-bottom));color:#fff;min-height:100%}
+  .sc-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0 12px}
+  .sc-hd b{font-size:16px}
+  .sc-hd .btn{background:transparent;border-color:#4b5563;color:#fff;font-size:22px;line-height:1}
+  #qrReader{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#111;min-height:220px}
+  #qrReader video{width:100%;height:auto;display:block}
+  .sc-guide{display:none;position:absolute;left:6%;right:6%;top:25%;bottom:25%;border:3px solid rgba(255,255,255,.9);border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+  #qrReader.live .sc-guide{display:block}
+  #qrReader.live{min-height:0}
+  .sc-msg{font-size:14px;color:#d1d5db;margin:14px 0;min-height:40px}
+  .sc-tip{font-size:12px;color:#9ca3af;margin-top:auto;padding-top:12px}
+  .scanner .btn.block{background:#fff;color:var(--ink);border-color:#fff}
+  body.sheet-open .toast{bottom:88px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <h1 id="appTitle">Laporan Refurbishment Workshop</h1>
+    <div class="sub" id="appArea">CDO Jakarta — Workshop</div>
+    <nav class="tabs" role="tablist">
+      <button class="tab on" data-tab="submit" role="tab">Submission</button>
+      <button class="tab" data-tab="dash" role="tab">Dashboard <span class="cnt" id="dashCnt"></span></button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ========================= TAB SUBMISSION (TAHAP 1) ========================= -->
+  <section class="view" id="view-submit">
+    <form id="fNew" class="card" autocomplete="off" novalidate>
+      <h2><span class="step">1</span> Data awal &amp; foto before</h2>
+      <p class="lead">Isi sebelum cooler dikerjakan. Foto after, foto PEC, dan data yang belum ada bisa dilengkapi nanti dari Dashboard.</p>
+
+      <div class="row2">
+        <div>
+          <label class="f" for="nTeknisi">Nama teknisi <span class="req">*</span></label>
+          <input type="text" id="nTeknisi" placeholder="Nama lengkap">
+        </div>
+        <div>
+          <label class="f" for="nAsset">Nomor asset <span class="req">*</span></label>
+          <div class="ig"><input type="text" id="nAsset" class="up" placeholder="Contoh: GC92490" inputmode="text"><button type="button" class="btn scan" data-scan="nAsset" aria-label="Scan barcode asset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13.5 8v8M17 8v8"/></svg> Scan</button></div>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label class="f" for="nWo">Nomor WO <span class="opt">(boleh menyusul)</span></label>
+          <input type="text" id="nWo" placeholder="Nomor work order" inputmode="numeric" maxlength="12">
+        </div>
+        <div>
+          <label class="f" for="nJenis">Jenis pengerjaan <span class="opt" id="nJenisReq">(boleh menyusul)</span></label>
+          <select id="nJenis"></select>
+          <div class="hint" id="nJenisMap"></div>
+        </div>
+      </div>
+      <label class="f" for="nCatatan">Catatan kondisi awal <span class="opt">(opsional)</span></label>
+      <textarea id="nCatatan" placeholder="Contoh: body penyok sisi kanan, kompresor bunyi"></textarea>
+
+      <div id="pkNewBefore"></div>
+
+      <label class="wi-opt" id="wiOpt">
+        <input type="checkbox" id="nWi">
+        <div>
+          <b>Kirim langsung ke SharePoint Workshop Inspection</b>
+          <div class="hint" id="wiHint">Untuk proses approval sampai nomor WO terbit. Work Class diambil dari jenis pengerjaan, Nomor Serial dari nomor asset.</div>
+        </div>
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+
+      <button type="submit" class="btn primary block" style="margin-top:16px" id="btnCreate">Submit tahap 1</button>
+    </form>
+  </section>
+
+  <!-- ========================= TAB DASHBOARD ========================= -->
+  <section class="view" id="view-dash" hidden>
+    <div class="banner" id="flowBanner" hidden>URL Power Automate belum diisi di Code.gs (CONFIG.FLOW_URLS). Tahap 1 &amp; 2 bisa dipakai, tombol Submit ke SharePoint belum aktif.</div>
+    <div class="stats" id="stats"></div>
+    <div class="hint" id="spInfo" hidden style="margin:-4px 0 10px"></div>
+    <div class="toolbar">
+      <input type="text" id="q" placeholder="Cari asset, WO, Doc No, teknisi…">
+      <button class="btn icon" data-scan="q" title="Scan barcode untuk cari asset" aria-label="Scan barcode untuk cari asset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13.5 8v8M17 8v8"/></svg></button>
+      <button class="btn icon" id="btnRefresh" title="Muat ulang" aria-label="Muat ulang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+</main>
+
+<!-- ========================= DETAIL (TAHAP 2 & 3) ========================= -->
+<div class="sheet" id="sheet" hidden>
+  <div class="sh-hd">
+    <button class="btn icon" id="shBack" aria-label="Kembali">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="t"><b id="shAsset">—</b><span id="shSub"></span></div>
+    <span class="badge" id="shBadge"></span>
+  </div>
+  <div class="sh-bd"><div class="sh-bd-in">
+    <div class="steps" id="shSteps"></div>
+
+    <div class="card" id="shDone" hidden>
+      <h2>Terkirim ke SharePoint</h2>
+      <p class="lead" id="shDoneTxt"></p>
+      <div class="links" id="shLinks"></div>
+      <div class="resp" id="shResp"></div>
+    </div>
+
+    <div class="banner must" id="woBanner" hidden><b>!</b><span>Cek nomor WO hasil approval Workshop Inspection, lalu isi di kolom Nomor WO. Wajib sebelum Submit ke CDES Before After &amp; eDocument Activity.</span></div>
+
+    <div class="card" id="wiCard">
+      <h2>Workshop Inspection</h2>
+      <div class="wi-box wi-NONE" id="wiTxt">Memuat…</div>
+      <div class="docno" id="wiDoc" hidden></div>
+      <div class="sp-box" id="wiSp" hidden></div>
+      <button class="btn sm" id="btnWi" style="margin-top:10px" hidden>Kirim ke Workshop Inspection</button>
+      <div class="hint" id="wiCount" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Data pengerjaan</h2>
+      <div class="row2">
+        <div>
+          <label class="f" for="dAsset">Nomor asset <span class="req">*</span></label>
+          <div class="ig"><input type="text" id="dAsset" class="up"><button type="button" class="btn scan" data-scan="dAsset" aria-label="Scan barcode asset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13.5 8v8M17 8v8"/></svg> Scan</button></div>
+        </div>
+        <div id="dWoWrap">
+          <label class="f" for="dWo">Nomor WO <span class="req">* wajib</span></label>
+          <input type="text" id="dWo" inputmode="numeric" maxlength="12" placeholder="Contoh: 90694966">
+          <div class="err-msg" id="dWoErr" hidden></div>
+        </div>
+      </div>
+      <label class="f" for="dJenis">Jenis pengerjaan <span class="req">*</span></label>
+      <select id="dJenis"></select>
+      <div class="hint" id="dJenisMap"></div>
+      <label class="f" for="dCatatan">Catatan <span class="opt">(opsional)</span></label>
+      <textarea id="dCatatan"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>Foto</h2>
+      <div id="pkBefore"></div>
+      <div id="pkAfter"></div>
+      <div id="pkPec"></div>
+    </div>
+
+    <div class="card" id="shCheckCard">
+      <h2>Kelengkapan untuk submit</h2>
+      <ul class="check" id="shCheck"></ul>
+    </div>
+  </div></div>
+  <div class="sh-ft" id="shFt"><div class="sh-ft-in">
+    <button class="btn" id="btnSave">Simpan</button>
+    <button class="btn primary" id="btnFinal">Submit ke SharePoint</button>
+  </div></div>
+</div>
+
+<!-- Overlay -->
+<div class="ov" id="busy" hidden><div class="busy-box"><div class="spin"></div><div id="busyTxt">Memproses…</div></div></div>
+<div class="ov" id="dlg" hidden><div class="dlg" role="dialog" aria-modal="true">
+  <h3 id="dlgT"></h3><div class="msg" id="dlgM"></div>
+  <div class="act"><button class="btn" id="dlgNo">Batal</button><button class="btn primary" id="dlgYes">Ya</button></div>
+</div></div>
+<div class="ov viewer" id="viewer" hidden><img id="viewerImg" alt="Foto"></div>
+<div class="ov scanner" id="scanner" hidden><div class="sc-box">
+  <div class="sc-hd"><b>Scan barcode asset</b><button class="btn icon" id="scClose" aria-label="Tutup">×</button></div>
+  <div id="qrReader"><video id="scVideo" playsinline muted></video><div class="sc-guide"></div></div>
+  <div class="sc-msg" id="scMsg">Membuka kamera…</div>
+  <button class="btn block" id="scPhoto" type="button">Foto barcode</button>
+  <input type="file" accept="image/*" capture="environment" hidden id="scFile">
+  <div class="sc-tip">Bisa barcode atau QR di stiker asset. Format seperti <b>AB~GC123456</b> otomatis diambil <b>GC123456</b> (juga nomor 1 huruf, mis. <b>G1234567</b>).</div>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------------- util ---------------- */
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ICON = {
+    cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+    img: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+    doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+    ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+    no: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg>'
+  };
+  const STATUS = {
+    OPEN:    'Perlu dilengkapi',
+    READY:   'Siap submit',
+    SENDING: 'Sedang dikirim',
+    FAILED:  'Gagal kirim',
+    SENT:    'Terkirim'
+  };
+  const store = {
+    get(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } },
+    set(k,v){ try { localStorage.setItem(k, v); } catch(e){} }
+  };
+
+  // Dibuka langsung dari Apps Script → pakai google.script.run.
+  // Dibuka dari domain sendiri (GitHub Pages, mis. rf.cokesoe.com) → panggil API_URL (URL /exec web app).
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwS63xH9fmYV4uZ2JnMDuSiMJke1fjofUGiOk_kZA6L-XKl9WU1f4KriGq5tlIWLtWT/exec';
+  const IN_GAS = !!(window.google && google.script && google.script.run);
+  function run(fn, ...args){
+    const clean = e => new Error(String(e && e.message || e).replace(/^(Error|Exception):\s*/,''));
+    if (IN_GAS) {
+      return new Promise((res, rej) => {
+        google.script.run.withSuccessHandler(res).withFailureHandler(e => rej(clean(e)))[fn](...args);
+      });
+    }
+    if (!/^https:\/\//.test(API_URL)) return Promise.reject(new Error('API_URL belum diisi di Index.html (URL /exec web app).'));
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // tanpa preflight CORS
+      body: JSON.stringify({ fn: fn, args: args }),
+      redirect: 'follow'
+    }).then(r => {
+      if (!r.ok) throw new Error('Server Apps Script membalas HTTP ' + r.status);
+      return r.json();
+    }).then(j => {
+      if (!j.ok) throw clean(j.error);
+      return j.data;
+    }, e => { throw (e instanceof TypeError ? new Error('Tidak bisa terhubung ke server. Cek koneksi internet.') : clean(e)); });
+  }
+  function busy(on, txt){ $('#busyTxt').textContent = txt || 'Memproses…'; $('#busy').hidden = !on; }
+  let toastT;
+  function toast(msg, kind){
+    const t = $('#toast'); t.textContent = msg; t.className = 'toast ' + (kind || ''); t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, kind === 'err' ? 6000 : 3500);
+  }
+  function confirmBox(title, msg, yes){
+    return new Promise(res => {
+      $('#dlgT').textContent = title; $('#dlgM').textContent = msg; $('#dlgYes').textContent = yes || 'Ya';
+      $('#dlg').hidden = false;
+      const done = v => { $('#dlg').hidden = true; $('#dlgYes').onclick = $('#dlgNo').onclick = null; res(v); };
+      $('#dlgYes').onclick = () => done(true);
+      $('#dlgNo').onclick = () => done(false);
+    });
+  }
+  function viewer(src){ $('#viewerImg').src = src; $('#viewer').hidden = false; }
+  $('#viewer').onclick = () => { $('#viewer').hidden = true; $('#viewerImg').src = ''; };
+  function fmt(s){
+    const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+    return m ? m[3] + '/' + m[2] + '/' + m[1].slice(2) + ' ' + m[4] + ':' + m[5] : (s || '');
+  }
+  function stampTime(d){
+    const p = n => String(n).padStart(2,'0');
+    return p(d.getDate()) + '/' + p(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  /* -------- kompres foto (maks 1280px, JPEG) + cap waktu -------- */
+  function compress(file, label){
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1280;
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const s = Math.min(1, MAX / Math.max(w, h));
+        w = Math.round(w * s); h = Math.round(h * s);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d');
+        x.drawImage(img, 0, 0, w, h);
+        if (label){
+          const txt = label + '  ' + stampTime(new Date(file.lastModified || Date.now()));
+          const fs = Math.max(14, Math.round(w / 42)), pad = Math.round(fs * .45);
+          x.font = '600 ' + fs + 'px Arial, sans-serif';
+          const tw = x.measureText(txt).width;
+          x.fillStyle = 'rgba(0,0,0,.55)';
+          x.fillRect(w - tw - pad * 3, h - fs - pad * 3, tw + pad * 2, fs + pad * 2);
+          x.fillStyle = '#fff'; x.textBaseline = 'middle';
+          x.fillText(txt, w - tw - pad * 2, h - pad * 2 - fs / 2);
+        }
+        URL.revokeObjectURL(url);
+        res({ data: c.toDataURL('image/jpeg', 0.72), w, h });
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('File bukan gambar atau tidak bisa dibaca.')); };
+      img.src = url;
+    });
+  }
+
+  /* ---------------- komponen picker foto ---------------- */
+  function Picker(host, opt){
+    const el = document.createElement('div');
+    el.className = 'picker';
+    el.innerHTML =
+      '<div class="pk-hd"><div><b>' + esc(opt.label) + '</b>' + (opt.required ? ' <span class="req">*</span>' : '') +
+        (opt.hint ? '<div class="hint">' + esc(opt.hint) + '</div>' : '') + '</div><span class="pk-n"></span></div>' +
+      '<div class="thumbs"></div>' +
+      '<div class="pk-btns">' +
+        '<button type="button" class="btn sm" data-a="cam">' + ICON.cam + ' Kamera</button>' +
+        '<button type="button" class="btn sm" data-a="gal">' + ICON.img + ' Galeri</button>' +
+      '</div>' +
+      '<input type="file" accept="image/*" capture="environment" hidden data-i="cam">' +
+      '<input type="file" accept="image/*" multiple hidden data-i="gal">';
+    host.appendChild(el);
+    const self = { onchange: null, max: opt.max };
+    let items = [], ro = false;
+    const thumbs = $('.thumbs', el), cnt = $('.pk-n', el), btns = $('.pk-btns', el);
+
+    function render(){
+      thumbs.innerHTML = '';
+      if (!items.length) thumbs.innerHTML = '<div class="empty-ph">Belum ada foto</div>';
+      items.forEach((it, i) => {
+        const d = document.createElement('div');
+        d.className = 'th' + (it.isNew ? ' new' : '');
+        d.innerHTML = it.data ? '<img src="' + it.data + '" alt="' + esc(opt.label) + ' ' + (i+1) + '">' : '<div class="miss">File tidak ditemukan</div>';
+        if (it.data) d.onclick = () => viewer(it.data);
+        if (!ro){
+          const x = document.createElement('button');
+          x.type = 'button'; x.className = 'th-x'; x.textContent = '×'; x.setAttribute('aria-label', 'Hapus foto');
+          x.onclick = ev => { ev.stopPropagation(); items.splice(i, 1); render(); self.onchange && self.onchange(); };
+          d.appendChild(x);
+        }
+        thumbs.appendChild(d);
+      });
+      cnt.textContent = items.length + '/' + self.max;
+      btns.style.display = ro ? 'none' : '';
+      $$('button', btns).forEach(b => b.disabled = items.length >= self.max);
+    }
+    $('[data-a=cam]', el).onclick = () => $('[data-i=cam]', el).click();
+    $('[data-a=gal]', el).onclick = () => $('[data-i=gal]', el).click();
+    $$('input[type=file]', el).forEach(inp => inp.onchange = async () => {
+      const files = Array.from(inp.files || []).slice(0, Math.max(0, self.max - items.length));
+      inp.value = '';
+      if (!files.length) return;
+      busy(true, 'Memproses foto…');
+      try {
+        for (const f of files) items.push(Object.assign(await compress(f, opt.stamp), { isNew: true }));
+      } catch (e) { toast(e.message, 'err'); }
+      finally { busy(false); render(); self.onchange && self.onchange(); }
+    });
+
+    self.set = arr => { items = (arr || []).slice(); render(); };
+    self.count = () => items.length;
+    self.hasNew = () => items.some(i => i.isNew);
+    self.ids = () => items.filter(i => !i.isNew && i.id).map(i => i.id);
+    self.newOnes = () => items.filter(i => i.isNew).map(i => ({ data: i.data, w: i.w, h: i.h }));
+    self.payload = () => ({ keep: self.ids(), add: self.newOnes() });
+    self.readonly = v => { ro = !!v; render(); };
+    self.setMax = m => { self.max = m; render(); };
+    render();
+    return self;
+  }
+
+  /* ---------------- scan barcode nomor asset ---------------- */
+  const SCAN_LIB = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+  // Format nomor asset: 1–2 huruf + angka (G1234567, GC92490, GD123456, GE…, HC…, VC…)
+  const ASSET_RE = /^[A-Z]{1,2}\d{4,10}$/;
+
+  /** Ambil nomor asset dari isi barcode. "AB~GC123456" -> "GC123456" */
+  function parseAsset(raw){
+    const s = String(raw || '').toUpperCase().replace(/\s+/g, '');
+    const parts = s.split(/[~|;,\/]+/).filter(Boolean);
+    for (const p of parts) if (ASSET_RE.test(p)) return p;
+    const m = s.replace(/^[A-Z]{1,2}~/, '').match(/[A-Z]{1,2}\d{4,10}/);
+    return m ? m[0] : '';
+  }
+
+  /* Decoder: BarcodeDetector bawaan (Android Chrome) atau ZXing (iPhone & lainnya) */
+  const NATIVE_FMT = ['code_128','code_39','code_93','ean_13','ean_8','itf','upc_a','qr_code','data_matrix'];
+  let nativeDet = null, zxP = null, zxReader = null;
+  async function initDecoder(){
+    if (nativeDet !== null || zxReader) return;
+    try {
+      if ('BarcodeDetector' in window) {
+        const sup = await BarcodeDetector.getSupportedFormats();
+        const f = NATIVE_FMT.filter(x => sup.includes(x));
+        if (f.includes('code_128') && f.includes('qr_code')) { nativeDet = new BarcodeDetector({ formats: f }); return; }
+      }
+    } catch (e) {}
+    nativeDet = false;
+    if (!window.ZXing) {
+      zxP = zxP || new Promise((res, rej) => {
+        const el = document.createElement('script');
+        el.src = SCAN_LIB; el.onload = res;
+        el.onerror = () => { zxP = null; rej(new Error('Library scan gagal dimuat. Cek koneksi internet.')); };
+        document.head.appendChild(el);
+      });
+      await zxP;
+    }
+    const Z = window.ZXing, BF = Z.BarcodeFormat, H = new Map();
+    H.set(Z.DecodeHintType.POSSIBLE_FORMATS, [BF.CODE_128, BF.CODE_39, BF.CODE_93, BF.EAN_13, BF.EAN_8, BF.ITF, BF.UPC_A, BF.QR_CODE, BF.DATA_MATRIX]);
+    H.set(Z.DecodeHintType.TRY_HARDER, true);
+    zxReader = new Z.MultiFormatReader();
+    zxReader.setHints(H);
+  }
+  async function decodeCanvas(cv){
+    if (nativeDet) {
+      try { const r = await nativeDet.detect(cv); return r.length ? r[0].rawValue : ''; } catch (e) { return ''; }
+    }
+    const Z = window.ZXing;
+    for (const Bin of [Z.HybridBinarizer, Z.GlobalHistogramBinarizer]) {
+      try { return zxReader.decode(new Z.BinaryBitmap(new Bin(new Z.HTMLCanvasElementLuminanceSource(cv)))).getText(); }
+      catch (e) {} finally { zxReader.reset(); }
+    }
+    return '';
+  }
+  /** Gambar sumber (video/gambar) ke canvas dengan sisi terpanjang = max, opsional potong & putar. */
+  function toCanvas(src, sw, sh, max, crop, rot){
+    const c = crop || { x: 0, y: 0, w: sw, h: sh };
+    const s = Math.min(1, max / Math.max(c.w, c.h));
+    const w = Math.round(c.w * s), h = Math.round(c.h * s);
+    const cv = document.createElement('canvas');
+    cv.width = rot ? h : w; cv.height = rot ? w : h;
+    const x = cv.getContext('2d', { willReadFrequently: true });
+    if (rot) { x.translate(h, 0); x.rotate(Math.PI / 2); }
+    x.drawImage(src, c.x, c.y, c.w, c.h, 0, 0, w, h);
+    return cv;
+  }
+
+  let scStream = null, scTimer = null, scanCb = null, scanDone = false;
+  function stopScanner(){
+    clearTimeout(scTimer); scTimer = null;
+    if (scStream) { scStream.getTracks().forEach(t => t.stop()); scStream = null; }
+    const v = $('#scVideo'); v.pause(); v.srcObject = null;
+    $('#qrReader').classList.remove('live');
+  }
+  async function openScanner(cb){
+    scanCb = cb; scanDone = false;
+    $('#scanner').hidden = false;
+    $('#scMsg').textContent = 'Membuka kamera…';
+    try { await initDecoder(); }
+    catch (e) { $('#scMsg').textContent = e.message; return; }
+    try {
+      scStream = await navigator.mediaDevices.getUserMedia({ audio: false,
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+      const v = $('#scVideo');
+      v.srcObject = scStream; await v.play();
+      $('#qrReader').classList.add('live');
+      $('#scMsg').textContent = 'Arahkan kotak ke barcode / QR di stiker asset.';
+      liveLoop();
+    } catch (e) {
+      stopScanner();
+      $('#scMsg').textContent = 'Kamera live tidak bisa dibuka di sini. Tekan "Foto barcode" lalu potret barcodenya dari dekat.';
+    }
+  }
+  async function liveLoop(){
+    const v = $('#scVideo');
+    if (!scStream || scanDone) return;
+    if (v.videoWidth) {
+      const W = v.videoWidth, Hh = v.videoHeight;
+      // area di dalam kotak panduan (tengah, lebar penuh 88%, tinggi 50%)
+      const cv = toCanvas(v, W, Hh, 1280, { x: W * .06, y: Hh * .25, w: W * .88, h: Hh * .5 });
+      const txt = await decodeCanvas(cv);
+      if (txt) { gotScan(txt); if (scanDone) return; }
+    }
+    scTimer = setTimeout(liveLoop, 180);
+  }
+  function closeScanner(){ stopScanner(); $('#scanner').hidden = true; }
+  function gotScan(txt){
+    if (scanDone) return;
+    const a = parseAsset(txt);
+    if (!a){ $('#scMsg').textContent = 'Terbaca "' + txt + '", tapi bukan format nomor asset. Coba barcode lain.'; return; }
+    scanDone = true;
+    if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
+    closeScanner();
+    toast('Asset terbaca: ' + a + (String(txt).trim().toUpperCase() !== a ? '  (dari ' + String(txt).trim() + ')' : ''), 'ok');
+    scanCb && scanCb(a, txt);
+  }
+  /** Foto barcode: coba beberapa ukuran & orientasi. */
+  async function decodeFile(file){
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Gambar tidak bisa dibaca.')); i.src = url; });
+      const W = img.naturalWidth, Hh = img.naturalHeight;
+      const tries = [[1600, 0], [1000, 0], [2200, 0], [1200, 1]];
+      for (const [max, rot] of tries) {
+        const txt = await decodeCanvas(toCanvas(img, W, Hh, max, null, rot));
+        if (txt) return txt;
+      }
+      return '';
+    } finally { URL.revokeObjectURL(url); }
+  }
+  $('#scClose').onclick = closeScanner;
+  $('#scPhoto').onclick = () => $('#scFile').click();
+  $('#scFile').onchange = async () => {
+    const f = $('#scFile').files[0]; $('#scFile').value = '';
+    if (!f) return;
+    stopScanner();
+    $('#scMsg').textContent = 'Membaca barcode dari foto…';
+    try {
+      await initDecoder();
+      const txt = await decodeFile(f);
+      if (txt) gotScan(txt);
+      else $('#scMsg').textContent = 'Barcode tidak terbaca dari foto. Foto lebih dekat, cukup terang, dan tidak miring, lalu coba lagi.';
+    } catch (e) { $('#scMsg').textContent = e.message; }
+  };
+
+  // Target hasil scan
+  const SCAN_TARGET = {
+    nAsset: a => { $('#nAsset').value = a; },
+    dAsset: a => { $('#dAsset').value = a; markDirty(); },
+    q: async a => {
+      $('#q').value = a; S.q = a.toLowerCase(); S.filter = 'ALL'; renderDash();
+      const hits = S.list.filter(r => r.asset === a);
+      const open = hits.filter(r => r.status !== 'SENT');
+      if (open.length === 1) return openDetail(open[0].id);
+      if (!hits.length && await confirmBox('Asset belum ada', 'Asset ' + a + ' belum ada di Dashboard.\nBuat submission tahap 1 untuk asset ini?', 'Buat baru')) {
+        $('#q').value = ''; S.q = ''; showTab('submit'); $('#nAsset').value = a;
+      }
+    }
+  };
+  $$('[data-scan]').forEach(b => b.onclick = () => openScanner(SCAN_TARGET[b.dataset.scan]));
+  // Kalau teknisi pakai aplikasi/alat scanner yang mengetik "AB~GC123456" langsung ke kolom
+  ['#nAsset', '#dAsset'].forEach(sel => $(sel).addEventListener('change', e => {
+    const v = e.target.value;
+    if (/[~|;]/.test(v)) { const a = parseAsset(v); if (a) { e.target.value = a; e.target.dispatchEvent(new Event('input')); } }
+  }));
+
+  /* ---------------- state ---------------- */
+  const S = { meta: null, list: [], filter: 'ALL', q: '', cur: null, orig: null, dirty: false, lastNew: '' };
+
+  /* ---------------- tab ---------------- */
+  function showTab(name){
+    $$('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+    $('#view-submit').hidden = name !== 'submit';
+    $('#view-dash').hidden = name !== 'dash';
+    window.scrollTo(0, 0);
+    if (name === 'dash') loadList();
+  }
+  $$('.tab').forEach(t => t.onclick = () => showTab(t.dataset.tab));
+
+  /* ---------------- jenis pengerjaan ---------------- */
+  function jenisOptions(sel, placeholder){
+    sel.innerHTML = '<option value="">' + placeholder + '</option>' +
+      S.meta.jenis.map(j => '<option value="' + j.kode + '">' + esc(j.kode + ' · ' + j.cdes.split('-').slice(1).join('-')) + '</option>').join('');
+  }
+  const jenisBy = k => S.meta.jenis.find(j => j.kode === k);
+  // Warna status SharePoint: hijau = disetujui/selesai, merah = ditolak/revisi, biru = lainnya
+  const spCls = st => /waiting|pending|menunggu|draft/i.test(st) ? 's-OPEN'
+    : /approv|setuju|selesai|complete|done|ok\b/i.test(st) ? 's-SENT'
+    : (/reject|tolak|revisi|revise|cancel|batal/i.test(st) ? 's-FAILED' : 's-READY');
+  const woOk = v => new RegExp(S.meta.woPattern).test(String(v || '').trim());
+  function focusWo(){
+    S.woTouched = true; refreshDetailState();
+    const el = $('#dWo'); el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => el.focus(), 300);
+  }
+
+  /* ================= TAHAP 1 ================= */
+  let pkNew;
+  function initSubmit(){
+    jenisOptions($('#nJenis'), '— Pilih nanti —');
+    const wi = $('#nWi');
+    wi.checked = S.meta.wiReady && S.meta.wiDefaultOn;
+    if (!S.meta.wiReady) {
+      wi.disabled = true; $('#wiOpt').classList.add('off');
+      $('#wiHint').textContent = 'URL flow Workshop Inspection belum diisi di Code.gs (CONFIG.WI_FLOW_URLS), jadi opsi ini nonaktif.';
+    }
+    const syncWi = () => {
+      $('#nJenisReq').textContent = wi.checked ? '* wajib untuk Workshop Inspection' : '(boleh menyusul)';
+      $('#nJenisReq').className = wi.checked ? 'req' : 'opt';
+      const j = jenisBy($('#nJenis').value);
+      $('#nJenisMap').textContent = j ? 'Work Class: ' + j.workshop : '';
+    };
+    wi.onchange = syncWi; $('#nJenis').addEventListener('change', syncWi); syncWi();
+    pkNew = Picker($('#pkNewBefore'), { label: 'Foto before', required: true, max: S.meta.max.before, stamp: 'BEFORE', hint: 'Foto kondisi cooler sebelum dikerjakan.' });
+    $('#nTeknisi').value = store.get('rf_teknisi');
+  }
+
+  $('#fNew').onsubmit = async ev => {
+    ev.preventDefault();
+    const d = {
+      teknisi: $('#nTeknisi').value.trim(),
+      asset: $('#nAsset').value.trim().toUpperCase(),
+      wo: $('#nWo').value.trim(),
+      jenis: $('#nJenis').value,
+      catatan: $('#nCatatan').value.trim(),
+      before: pkNew.newOnes(),
+      kirimWorkshopInspection: $('#nWi').checked
+    };
+    if (!d.teknisi) return toast('Nama teknisi wajib diisi.', 'err'), $('#nTeknisi').focus();
+    if (!d.asset) return toast('Nomor asset wajib diisi.', 'err'), $('#nAsset').focus();
+    if (!d.before.length) return toast('Ambil minimal 1 foto before.', 'err');
+    if (d.wo && !woOk(d.wo)) return toast(S.meta.woPatternMsg, 'err'), $('#nWo').focus();
+    if (d.kirimWorkshopInspection && !d.jenis) return toast('Pilih jenis pengerjaan (Work Class) untuk dikirim ke Workshop Inspection.', 'err'), $('#nJenis').focus();
+
+    const dup = S.list.find(r => r.asset === d.asset && r.status !== 'SENT');
+    if (dup && !(await confirmBox('Asset sudah ada', 'Asset ' + d.asset + ' masih terbuka di Dashboard (' + dup.id + ', ' + STATUS[dup.status] + ').\nTetap buat data baru?', 'Buat baru'))) return;
+
+    store.set('rf_teknisi', d.teknisi);
+    busy(true, d.kirimWorkshopInspection ? 'Mengunggah foto & mengirim ke Workshop Inspection…' : 'Mengunggah foto before…');
+    try {
+      const rec = await run('createSubmission', d);
+      $('#nAsset').value = ''; $('#nWo').value = ''; $('#nJenis').value = ''; $('#nCatatan').value = '';
+      $('#nJenis').dispatchEvent(new Event('change'));
+      pkNew.set([]);
+      S.lastNew = rec.id;
+      busy(false);
+      if (rec.wi.state === 'FAILED') toast('Tersimpan ' + rec.id + ', tapi gagal kirim ke Workshop Inspection. Kirim ulang dari Dashboard.', 'err');
+      else if (rec.wi.state === 'SENT') toast('Tersimpan ' + rec.id + ' & terkirim ke Workshop Inspection. Tunggu approval nomor WO.', 'ok');
+      else toast('Tersimpan ' + rec.id + '. Lengkapi foto after & PEC dari Dashboard.', 'ok');
+      showTab('dash');
+    } catch (e) { busy(false); toast(e.message, 'err'); }
+  };
+
+  /* ================= DASHBOARD ================= */
+  async function loadList(opt){
+    if (!S.list.length) $('#list').innerHTML = '<div class="empty">Memuat data…</div>';
+    try {
+      S.list = await run('listSubmissions');
+      renderDash();
+    } catch (e) { $('#list').innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; return; }
+    syncStatus(opt && opt.force);
+  }
+  // Tarik Status & Comments terbaru dari SharePoint (Flow 3), cocokkan Document Number + nomor asset
+  let syncing = false;
+  async function syncStatus(force){
+    if (!S.meta.wiStatusReady || syncing) return;
+    syncing = true;
+    const info = $('#spInfo'); info.hidden = false; info.textContent = 'Memperbarui status SharePoint…';
+    try {
+      const r = await run('refreshWiStatus', null, !!force);
+      if (!r.skipped && r.found) { S.list = await run('listSubmissions'); renderDash(); }
+      info.textContent = 'Status SharePoint diperbarui ' + fmt(r.at) + (r.skipped ? '' : ' · ' + r.found + ' dari ' + r.checked + ' Document Number cocok · ' + r.received + ' item dari SharePoint');
+    } catch (e) { info.textContent = 'Gagal memperbarui status SharePoint: ' + e.message; }
+    finally { syncing = false; }
+  }
+  $('#btnRefresh').onclick = () => loadList({ force: true });
+  $('#q').oninput = e => { S.q = e.target.value.trim().toLowerCase(); renderList(); };
+
+  function renderDash(){
+    const c = { ALL: S.list.length, OPEN: 0, READY: 0, SENT: 0 };
+    S.list.forEach(r => {
+      if (r.status === 'OPEN') c.OPEN++;
+      else if (r.status === 'READY' || r.status === 'FAILED' || r.status === 'SENDING') c.READY++;
+      else if (r.status === 'SENT') c.SENT++;
+    });
+    $('#dashCnt').textContent = (c.OPEN + c.READY) || '';
+    const st = [['ALL','Semua'],['OPEN','Belum lengkap'],['READY','Siap submit'],['SENT','Terkirim']];
+    $('#stats').innerHTML = st.map(([k, l]) =>
+      '<button class="stat' + (S.filter === k ? ' on' : '') + '" data-f="' + k + '"><div class="v">' + c[k] + '</div><div class="l">' + l + '</div></button>').join('');
+    $$('.stat').forEach(b => b.onclick = () => { S.filter = b.dataset.f; renderDash(); });
+    $('#flowBanner').hidden = S.meta.flowReady;
+    renderList();
+  }
+
+  function renderList(){
+    const f = S.filter, q = S.q;
+    const rows = S.list.filter(r => {
+      if (f === 'OPEN' && r.status !== 'OPEN') return false;
+      if (f === 'READY' && !['READY','FAILED','SENDING'].includes(r.status)) return false;
+      if (f === 'SENT' && r.status !== 'SENT') return false;
+      if (q && ![r.asset, r.wo, r.id, r.teknisi, r.wi.docNo].join(' ').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    if (!rows.length){
+      $('#list').innerHTML = '<div class="empty">' + (S.list.length ? 'Tidak ada data yang cocok.' : 'Belum ada submission. Mulai dari tab Submission.') + '</div>';
+      return;
+    }
+    const chip = (lbl, n) => '<span class="chip ' + (n ? 'ok' : 'miss') + '">' + lbl + ' ' + n + '</span>';
+    $('#list').innerHTML = rows.map(r =>
+      '<button class="item' + (r.id === S.lastNew ? ' hl' : '') + '" data-id="' + esc(r.id) + '">' +
+        '<div class="it-top"><span class="asset">' + esc(r.asset) + '</span><span class="badge s-' + r.status + '">' + (STATUS[r.status] || r.status) + '</span></div>' +
+        '<div class="it-meta">' + (r.wo ? 'WO ' + esc(r.wo) : '<span style="color:var(--warn)">WO belum diisi</span>') + ' · ' +
+          (r.jenisCdes ? esc(r.jenisCdes) : '<span style="color:var(--warn)">Jenis belum dipilih</span>') +
+          (r.wi.docNo ? ' · Doc ' + esc(r.wi.docNo) : '') + '</div>' +
+        '<div class="it-foot">' + '<span class="chip ' + (r.wi.state === 'SENT' ? 'ok' : 'miss') + '">WI ' + ({SENT:'✓',FAILED:'gagal',NONE:'–'}[r.wi.state]) + (r.wi.count > 1 ? ' ' + r.wi.count + 'x' : '') + '</span>' +
+          (r.wi.sp && r.wi.sp.status ? '<span class="badge ' + spCls(r.wi.sp.status) + '" style="font-size:11px;padding:2px 8px">' + esc(r.wi.sp.status) + '</span>' : '') + chip('Before', r.n.before) + chip('After', r.n.after) + chip('PEC', r.n.pec) +
+          '<span class="it-date">' + esc(r.id) + ' · ' + esc(fmt(r.dibuat)) + (r.teknisi ? ' · ' + esc(r.teknisi) : '') + '</span></div>' +
+      '</button>').join('');
+    $$('.item').forEach(b => b.onclick = () => openDetail(b.dataset.id));
+    S.lastNew = '';
+  }
+
+  /* ================= DETAIL: TAHAP 2 & 3 ================= */
+  let pkB, pkA, pkP;
+  function initDetail(){
+    jenisOptions($('#dJenis'), '— Pilih jenis pengerjaan —');
+    pkB = Picker($('#pkBefore'), { label: 'Foto before', required: true, max: S.meta.max.before, stamp: 'BEFORE' });
+    pkA = Picker($('#pkAfter'),  { label: 'Foto after',  required: true, max: S.meta.max.after,  stamp: 'AFTER', hint: 'Kondisi cooler setelah selesai dikerjakan.' });
+    pkP = Picker($('#pkPec'),    { label: 'Foto PEC',    required: true, max: S.meta.max.pec,    stamp: '', hint: 'Foto kertas PEC yang sudah ditandatangani. Dikirim sebagai PDF ke eDocument Activity dan sebagai foto ke CDES Before After.' });
+    [pkB, pkA, pkP].forEach(p => p.onchange = markDirty);
+    ['#nWo','#dWo'].forEach(s => $(s).addEventListener('input', e => { const v = e.target.value.replace(/\D/g, ''); if (v !== e.target.value) e.target.value = v; }));
+    $('#dWo').addEventListener('blur', () => { S.woTouched = true; refreshDetailState(); });
+    ['#dAsset','#dWo','#dJenis','#dCatatan'].forEach(s => $(s).addEventListener('input', markDirty));
+    $('#dJenis').addEventListener('change', () => { markDirty(); jenisMap(); });
+  }
+  function jenisMap(){
+    const j = jenisBy($('#dJenis').value);
+    $('#dJenisMap').textContent = j ? 'CDES Before After: ' + j.cdes + '   ·   Workshop Inspection: ' + j.workshop : '';
+  }
+
+  async function openDetail(id){
+    $('#sheet').hidden = false;
+    document.body.style.overflow = 'hidden'; document.body.classList.add('sheet-open');
+    $('#shAsset').textContent = 'Memuat…'; $('#shSub').textContent = id; $('#shBadge').textContent = '';
+    $('#btnWi').hidden = true; $('#wiCount').hidden = true; $('#wiDoc').hidden = true; $('#wiSp').hidden = true; $('#wiTxt').className = 'wi-box wi-NONE'; $('#wiTxt').textContent = 'Memuat…';
+    [pkB, pkA, pkP].forEach(p => p.set([]));
+    busy(true, 'Memuat foto…');
+    try {
+      const r = await run('getRecord', id);
+      fillDetail(r);
+    } catch (e) { toast(e.message, 'err'); closeDetail(true); }
+    finally { busy(false); }
+  }
+
+  function fillDetail(r){
+    S.cur = r; S.dirty = false; S.woTouched = !!r.wo;
+    $('#shAsset').textContent = r.asset;
+    $('#shSub').textContent = r.id + ' · ' + fmt(r.dibuat) + (r.teknisi ? ' · ' + r.teknisi : '');
+    $('#shBadge').className = 'badge s-' + r.status; $('#shBadge').textContent = STATUS[r.status] || r.status;
+    $('#dAsset').value = r.asset; $('#dWo').value = r.wo; $('#dJenis').value = r.jenis; $('#dCatatan').value = r.catatan;
+    jenisMap();
+    pkB.set(r.photos.before); pkA.set(r.photos.after); pkP.set(r.photos.pec);
+
+    const sent = r.status === 'SENT';
+    ['#dAsset','#dWo','#dJenis','#dCatatan'].forEach(s => $(s).disabled = sent);
+    [pkB, pkA, pkP].forEach(p => p.readonly(sent));
+    $('#shDone').hidden = !sent;
+    const W = r.wi, wiMsg = {
+      SENT: 'Terkirim ' + fmt(W.text) + '. Cek nomor WO hasil approval, lalu isi di kolom Nomor WO.',
+      FAILED: 'Gagal kirim (' + W.text.replace(/^\S+ \S+ \| /, '') + '). Tekan kirim ulang.',
+      NONE: 'Belum dikirim ke Workshop Inspection.'
+    };
+    $('#wiTxt').className = 'wi-box wi-' + W.state;
+    $('#wiTxt').textContent = wiMsg[W.state];
+    // Document Number (dibuat web app saat kirim ke Workshop Inspection)
+    const doc = $('#wiDoc');
+    doc.hidden = !W.docNo;
+    if (W.docNo) {
+      doc.innerHTML = '<span>Document Number<br><b>' + esc(W.docNo) + '</b>' +
+        (W.docAll.length > 1 ? '<br><span class="hint">Sebelumnya: ' + esc(W.docAll.slice(0, -1).join(', ')) + '</span>' : '') + '</span>';
+    }
+    // Status & Comments dari SharePoint (dikirim Flow 3)
+    const sp = $('#wiSp');
+    sp.hidden = !W.docNo;
+    if (W.docNo) {
+      sp.innerHTML = (W.sp
+        ? '<div class="sp-row">Status SharePoint: <span class="badge ' + spCls(W.sp.status) + '">' + esc(W.sp.status || '-') + '</span>' +
+          '<span class="hint">diperbarui ' + esc(fmt(W.sp.at)) + '</span></div>' +
+          (W.sp.comments ? '<div class="sp-cmt">' + esc(W.sp.comments) + '</div>' : '<div class="hint">Belum ada comments.</div>')
+        : '<div class="sp-row"><span class="hint">Status SharePoint: belum ada data untuk ' + esc(W.docNo) + ' (Nomor Serial ' + esc(r.asset) + '). Tekan muat ulang.</span></div>') +
+        '<button type="button" class="linkbtn" id="btnSpRefresh">↻ Muat ulang status</button>';
+      $('#btnSpRefresh').onclick = async () => {
+        if (S.dirty) return toast('Simpan perubahan dulu, lalu muat ulang.', 'err');
+        if (!S.meta.wiStatusReady) return toast('URL Flow 3 (cek status) belum diisi di Code.gs.', 'err');
+        try {
+          busy(true, 'Mengambil status dari SharePoint…');
+          const res = await run('refreshWiStatus', S.cur.id, true);
+          fillDetail(await run('getRecord', S.cur.id));
+          if (!res.found) toast('Belum cocok. ' + (res.diag || ''), 'err');
+        }
+        catch (e) { toast(e.message, 'err'); } finally { busy(false); }
+      };
+    }
+    // Tombol selalu tersedia; jumlah kirim sukses ditampilkan di bawahnya
+    $('#btnWi').hidden = false;
+    $('#btnWi').disabled = !S.meta.wiReady;
+    $('#btnWi').textContent = W.count > 0 ? 'Kirim lagi ke Workshop Inspection' : (W.state === 'FAILED' ? 'Kirim ulang ke Workshop Inspection' : 'Kirim ke Workshop Inspection');
+    $('#wiCount').hidden = false;
+    $('#wiCount').textContent = !S.meta.wiReady ? 'URL flow Workshop Inspection belum diisi di Code.gs.'
+      : (W.count > 0 ? 'Sudah dikirim ' + W.count + ' kali' + (W.state === 'SENT' ? ' · terakhir ' + fmt(W.text) : '') : 'Belum pernah terkirim.');
+    $('#shCheckCard').hidden = sent;
+    $('#shFt').hidden = sent;
+    if (sent){
+      $('#shDoneTxt').textContent = 'Dikirim ' + fmt(r.submitAt) + '. Data sudah dikunci.';
+      $('#shLinks').innerHTML =
+        (r.laporanUrl ? '<a href="' + esc(r.laporanUrl) + '" target="_blank" rel="noopener">' + ICON.doc + ' Laporan Refurbishment (PDF)</a>' : '') +
+        (r.pecUrl ? '<a href="' + esc(r.pecUrl) + '" target="_blank" rel="noopener">' + ICON.doc + ' PEC untuk eDocument (PDF)</a>' : '');
+      $('#shResp').textContent = r.respon ? 'Respon flow: ' + r.respon : '';
+    }
+    refreshDetailState();
+  }
+
+  function markDirty(){ S.dirty = true; refreshDetailState(); }
+
+  function localMissing(){
+    const m = [];
+    m.push(['Nomor WO', woOk($('#dWo').value)]);
+    m.push(['Jenis pengerjaan', !!$('#dJenis').value]);
+    m.push(['Foto before', pkB.count() > 0]);
+    m.push(['Foto after', pkA.count() > 0]);
+    m.push(['Foto PEC', pkP.count() > 0]);
+    return m;
+  }
+
+  function refreshDetailState(){
+    const r = S.cur; if (!r) return;
+    const m = localMissing();
+    const complete = m.every(x => x[1]);
+    $('#shCheck').innerHTML = m.map(([l, ok]) => '<li class="' + (ok ? 'ok' : '') + '">' + (ok ? ICON.ok : ICON.no) + esc(l) + '</li>').join('');
+    const s1 = true, s2 = pkA.count() > 0 && pkP.count() > 0, s3 = r.status === 'SENT';
+    const cur = s3 ? 0 : (s2 ? 3 : 2);
+    $('#shSteps').innerHTML = [
+      ['1. Before', 'Data awal', s1, false],
+      ['2. After & PEC', s2 ? 'Lengkap' : 'Belum lengkap', s2, cur === 2],
+      ['3. Submit', s3 ? 'Terkirim' : (r.status === 'FAILED' ? 'Gagal, ulangi' : 'SharePoint'), s3, cur === 3]
+    ].map(([t, sub, done, on]) => '<div class="stp' + (done ? ' done' : '') + (on ? ' cur' : '') + '"><b>' + t + '</b>' + sub + '</div>').join('');
+    $('#btnSave').disabled = !S.dirty;
+    $('#btnSave').textContent = S.dirty ? 'Simpan' : 'Tersimpan';
+    // Nomor WO: banner wajib + pesan error di field
+    const wo = $('#dWo').value.trim(), sent = r.status === 'SENT';
+    $('#woBanner').hidden = sent || woOk(wo);
+    const woErr = sent ? '' : (!wo ? (S.woTouched ? 'Nomor WO wajib diisi sebelum submit.' : '') : (!woOk(wo) ? S.meta.woPatternMsg : ''));
+    $('#dWoErr').textContent = woErr; $('#dWoErr').hidden = !woErr;
+    $('#dWoWrap').classList.toggle('fld-err', !!woErr);
+    // Tombol submit tetap bisa ditekan supaya teknisi diarahkan ke data yang kurang
+    $('#btnFinal').disabled = !S.meta.flowReady;
+    $('#btnFinal').classList.toggle('dim', !complete);
+    $('#btnFinal').title = !S.meta.flowReady ? 'URL Power Automate belum diisi' : (!complete ? 'Lengkapi data dulu' : '');
+  }
+
+  function detailPayload(){
+    return {
+      asset: $('#dAsset').value.trim().toUpperCase(),
+      wo: $('#dWo').value.trim(),
+      jenis: $('#dJenis').value,
+      catatan: $('#dCatatan').value.trim(),
+      photos: { before: pkB.payload(), after: pkA.payload(), pec: pkP.payload() }
+    };
+  }
+
+  async function saveDetail(silent){
+    const d = detailPayload();
+    if (!d.asset) throw new Error('Nomor asset wajib diisi.');
+    if (!pkB.count()) throw new Error('Minimal 1 foto before.');
+    if (d.wo && !woOk(d.wo)) { focusWo(); throw new Error(S.meta.woPatternMsg); }
+    busy(true, (pkB.hasNew() || pkA.hasNew() || pkP.hasNew()) ? 'Mengunggah foto…' : 'Menyimpan…');
+    await run('updateSubmission', S.cur.id, d);
+    const fresh = await run('getRecord', S.cur.id);
+    fillDetail(fresh);
+    busy(false);
+    if (!silent) toast(fresh.status === 'READY' ? 'Tersimpan. Data siap disubmit ke SharePoint.' : 'Tersimpan.', 'ok');
+  }
+
+  $('#btnSave').onclick = async () => {
+    try { await saveDetail(false); } catch (e) { busy(false); toast(e.message, 'err'); }
+  };
+
+  $('#btnFinal').onclick = async () => {
+    const kurang = localMissing().filter(x => !x[1]).map(x => x[0]);
+    if (kurang.length){
+      if (kurang.includes('Nomor WO')) focusWo();
+      return toast('Belum bisa submit. Lengkapi dulu: ' + kurang.join(', ') + '.', 'err');
+    }
+    const j = jenisBy($('#dJenis').value);
+    const msg = 'Asset ' + $('#dAsset').value.trim().toUpperCase() + ' · WO ' + $('#dWo').value.trim() + '\n' +
+      'Jenis: ' + (j ? j.cdes : '-') + '\n' +
+      'Foto: before ' + pkB.count() + ', after ' + pkA.count() + ', PEC ' + pkP.count() + '\n\n' +
+      'Foto before/after/PEC dikirim ke CDES Before After, PDF PEC ke eDocument Activity. Setelah submit data dikunci dan tidak bisa diedit.';
+    if (!(await confirmBox('Submit ke SharePoint?', msg, 'Submit'))) return;
+    try {
+      if (S.dirty) await saveDetail(true);
+      busy(true, 'Membuat PDF & mengirim ke SharePoint…');
+      await run('finalSubmit', S.cur.id);
+      const fresh = await run('getRecord', S.cur.id);
+      fillDetail(fresh);
+      busy(false);
+      toast('Terkirim ke SharePoint.', 'ok');
+      loadList();
+    } catch (e) {
+      busy(false);
+      toast(e.message, 'err');
+      try { fillDetail(await run('getRecord', S.cur.id)); } catch (_) {}
+      loadList();
+    }
+  };
+
+  $('#btnWi').onclick = async () => {
+    try {
+      if (S.dirty) await saveDetail(true);
+      if (!S.cur.jenis) { $('#dJenis').focus(); return toast('Pilih jenis pengerjaan (Work Class) dulu.', 'err'); }
+      const n = S.cur.wi.count;
+      if (n > 0 && !(await confirmBox('Kirim lagi?', 'Asset ini sudah dikirim ' + n + ' kali ke Workshop Inspection.\nKirim lagi akan membuat item baru di SharePoint.', 'Kirim lagi'))) return;
+      busy(true, 'Mengirim ke Workshop Inspection…');
+      await run('resendWorkshopInspection', S.cur.id);
+      fillDetail(await run('getRecord', S.cur.id));
+      busy(false);
+      toast('Terkirim ke Workshop Inspection. Tunggu approval nomor WO.', 'ok');
+    } catch (e) {
+      busy(false); toast(e.message, 'err');
+      try { fillDetail(await run('getRecord', S.cur.id)); } catch (_) {}
+    }
+  };
+
+  async function closeDetail(force){
+    if (!force && S.dirty && !(await confirmBox('Buang perubahan?', 'Ada perubahan yang belum disimpan.', 'Buang'))) return;
+    $('#sheet').hidden = true;
+    document.body.style.overflow = ''; document.body.classList.remove('sheet-open');
+    S.cur = null; S.dirty = false;
+    loadList();
+  }
+  $('#shBack').onclick = () => closeDetail(false);
+
+  /* ---------------- start ---------------- */
+  (async function init(){
+    busy(true, 'Memuat…');
+    try {
+      S.meta = await run('getMeta');
+      $('#appTitle').textContent = S.meta.title;
+      $('#appArea').textContent = S.meta.area;
+      initSubmit();
+      initDetail();
+      busy(false);
+      loadList();
+    } catch (e) {
+      busy(false);
+      toast(e.message, 'err');
+    }
+  })();
+})();
+</script>
+</body>
+</html>
